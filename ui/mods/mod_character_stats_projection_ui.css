@@ -1,0 +1,10 @@
+.ui-control.progressbar.fatigue .normal-bar,
+.ui-control.progressbar.bravery .normal-bar,
+.ui-control.progressbar.melee-skill .normal-bar,
+.ui-control.progressbar.range-skill .normal-bar,
+.ui-control.progressbar.melee-defense .normal-bar,
+.ui-control.progressbar.range-defense .normal-bar
+{
+    background-image: url("coui://gfx/ui/skin/inventory_bar_fill_action_127.png");
+    opacity: 0.25;
+}
