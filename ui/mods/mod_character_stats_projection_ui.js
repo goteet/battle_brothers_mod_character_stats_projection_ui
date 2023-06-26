@@ -80,3 +80,76 @@ CharacterScreenStatsModule.prototype.createRowsDIV = function (_definitions, _pa
 		statsRowIconLayout.append(_value.Talent);
 	});
 };
+
+CharacterScreenLeftPanelHeaderModule.prototype.setLevelUpDialogContentProgressbarValue = function (_progressbarDiv, _data, _valueKey, _valueMaxKey)
+{
+    if (_valueKey in _data && _data[_valueKey] !== null && _valueMaxKey in _data && _data[_valueMaxKey] !== null)
+    {
+        _progressbarDiv.changeProgressbarPreviewWidth(_data[_valueKey], _data[_valueMaxKey], true);
+        _progressbarDiv.changeProgressbarLabel('' + _data[_valueKey]);
+    }
+};
+
+CharacterScreenLeftPanelHeaderModule.prototype.setLevelUpDialogContentProgressbarValueWithProj = function (_progressbarDiv, _data, _valueKey, _valueProjKey, _valueMaxKey)
+{
+    if (_valueKey in _data && _data[_valueKey] !== null && _valueMaxKey in _data && _data[_valueMaxKey] !== null && _valueProjKey in _data && _data[_valueProjKey] !== null)
+    {
+		_progressbarDiv.changeProgressbarLabel('' + _data[_valueKey] + ' (' + _data[_valueProjKey] + ')');
+        _progressbarDiv.changeProgressbarPreviewWidth(_data[_valueKey], _data[_valueMaxKey], true);
+        _progressbarDiv.changeProgressbarNormalWidth(_data[_valueProjKey], _data[_valueMaxKey], true);
+    }
+};
+
+CharacterScreenLeftPanelHeaderModule.prototype.createLevelUpDialogContent_ = CharacterScreenLeftPanelHeaderModule.prototype.createLevelUpDialogContent;
+CharacterScreenLeftPanelHeaderModule.prototype.createLevelUpDialogContent = function()
+{
+	this.mLevelUpLeftStatsRows.Hitpoints.ProgressbarValueIdentifierProj = ProgressbarValueIdentifier.HitpointsProj;
+	this.mLevelUpLeftStatsRows.Fatigue.ProgressbarValueIdentifierProj = ProgressbarValueIdentifier.FatigueProj;
+	this.mLevelUpLeftStatsRows.Bravery.ProgressbarValueIdentifierProj = ProgressbarValueIdentifier.BraveryProj;
+	this.mLevelUpLeftStatsRows.Initiative.ProgressbarValueIdentifierProj = ProgressbarValueIdentifier.InitiativeProj;
+
+	this.mLevelUpRightStatsRows.MeleeSkill.ProgressbarValueIdentifierProj = ProgressbarValueIdentifier.MeleeSkillProj;
+	this.mLevelUpRightStatsRows.RangeSkill.ProgressbarValueIdentifierProj = ProgressbarValueIdentifier.RangeSkillProj;
+	this.mLevelUpRightStatsRows.MeleeDefense.ProgressbarValueIdentifierProj = ProgressbarValueIdentifier.MeleeDefenseProj;
+	this.mLevelUpRightStatsRows.RangeDefense.ProgressbarValueIdentifierProj = ProgressbarValueIdentifier.RangeDefenseProj;
+	return this.createLevelUpDialogContent_();
+}
+
+CharacterScreenLeftPanelHeaderModule.prototype.createLevelUpDialogContentRow_ = CharacterScreenLeftPanelHeaderModule.prototype.createLevelUpDialogContentRow;
+CharacterScreenLeftPanelHeaderModule.prototype.createLevelUpDialogContentRow = function (_definitions, _parentDiv, _data, _stats)
+{
+    var self = this;
+
+    $.each(_definitions, function(_key, _value)
+	{
+        var row = $('<div class="row"/>');
+        _parentDiv.append(row);
+        row.bindTooltip({ contentType: 'ui-element', elementId: _value.TooltipId });
+
+        var image = $('<img/>');
+        image.attr('src', _value.IconPath);
+        row.append(image);
+
+        _value.Talent = $('<img class="talent" src="' + Path.GFX + 'ui/icons/talent_' + _stats[_value.TalentIdentifier] + '.png"/>');
+        _value.Talent.css({ 'width': '3.6rem', 'height': '1.8rem' });
+        row.append(_value.Talent);
+
+        var progressbarLayout = $('<div class="l-progressbar-container"/>');
+        row.append(progressbarLayout);
+        _value.Progressbar = progressbarLayout.createProgressbar(false, _value.StyleName);
+
+        self.setLevelUpDialogContentProgressbarValueWithProj(_value.Progressbar, _data, _value.ProgressbarValueIdentifier, _value.ProgressbarValueIdentifierProj, _value.ProgressbarValueIdentifierMax);
+
+        var buttonLayout = $('<div class="l-increase-button-container"/>');
+        row.append(buttonLayout);
+
+        //_value.Button = buttonLayout.createTextButton("+", function(_button)
+		_value.Button = buttonLayout.createTextButton("+" + _data[_value.StatValueIdentifier], function(_button)
+		{
+            self.increaseLevelUpStatValue(_button);
+			self.mDataSource.notifyBackendDiceThrow();
+        }, 'font-bold', 8);
+        _value.Button.data('stat', _key);
+		_value.Button.data('isIncreased', false);
+    });
+};
